@@ -53,7 +53,7 @@ const getPossibleSteps = ([pos, currRow], maze = []) => {
 
 const isExit = (newPos, newRow, maze) => (newRow === 0 || newRow === maze.length - 1 || newPos === 0 || newPos === newRow.length - 1);
 
-const fn = (coords, possibleSteps, maze, way = '') => {
+const tracePaths = (coords, possibleSteps, maze, way = '') => {
   for (const step of possibleSteps) {
     const changePosition = STEPS[step];
     way += step + ' ';
@@ -83,5 +83,5 @@ const maze = [
 
 const initCoords = findInitPos(maze);
 const possibleSteps = getPossibleSteps(initCoords, maze);
-const instructions = fn(initCoords, possibleSteps, maze);
+const instructions = tracePaths(initCoords, possibleSteps, maze);
 console.log(instructions);
