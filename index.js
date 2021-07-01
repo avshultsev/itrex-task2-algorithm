@@ -64,7 +64,7 @@ const tracePaths = (coords, possibleSteps, maze, way = '') => {
     const idx = possSteps.indexOf(opposite);
     if (idx !== -1) possSteps.splice(idx, 1); // so we dispose of previous steps not to go backwards
     if (possSteps.length === 0) continue;     // deadend reached
-    return fn([newPos, newRow], possSteps, maze, way);
+    return tracePaths([newPos, newRow], possSteps, maze, way);
   }
 };
 
