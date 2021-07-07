@@ -51,22 +51,14 @@ const getPossibleSteps = ([pos, currRow], maze = []) => {
   return [top, bottom, left, right].filter(e => e);
 };
 
-const isExit = (newPos, newRow, maze) => (newRow === 0 || newRow === maze.length - 1 || newPos === 0 || newPos === newRow.length - 1);
-
-const tracePaths = (coords, possibleSteps, maze, way = '') => {
-  for (const step of possibleSteps) {
-    const changePosition = STEPS[step];
-    way += step + ' ';
-    const [newPos, newRow] = changePosition(coords);
-    if (isExit(newPos, newRow, maze)) return way.trim().split(' ');
-    const possSteps = getPossibleSteps([newPos, newRow], maze);
-    const opposite = OPPOSITE[step];          // we are moving only forward in one direction
-    const idx = possSteps.indexOf(opposite);
-    if (idx !== -1) possSteps.splice(idx, 1); // so we dispose of previous steps not to go backwards
-    if (possSteps.length === 0) continue;     // deadend reached
-    return tracePaths([newPos, newRow], possSteps, maze, way);
-  }
+const preventBackwards = (possibleSteps = [], prev = '') => {
+  const opposite = OPPOSITE[prev];
+  const index = possibleSteps.indexOf(opposite);
+  if (index !== -1) possibleSteps.splice(index, 1);
+  return possibleSteps;
 };
+
+const isExit = ([newPos, newRow], maze) => (newRow === 0 || newRow === maze.length - 1 || newPos === 0 || newPos === maze[newRow].length - 1);
 
 // USAGE
 // Answer for the maze given below: ['left', 'top','top','left','left','bottom','bottom','left']`
@@ -81,7 +73,24 @@ const maze = [
   ['#', '#', '#', '#', '#', '#', '#', '#', '#'],
 ];
 
+const tracePaths = (coords, maze, prev = '', way = []) => {
+  const possibleSteps = getPossibleSteps(coords, maze);
+  const steps = preventBackwards(possibleSteps, prev);
+  for (const step of steps) {
+    const changePosition = STEPS[step];
+    const newCoords = changePosition(coords);
+    way.push(step);
+    if (isExit(newCoords, maze)) return way;
+    const result = tracePaths(newCoords, maze, step, way);
+    if (!result) {
+      way.pop();
+      continue;
+    }
+    return result;
+  }
+};
+
 const initCoords = findInitPos(maze);
 const possibleSteps = getPossibleSteps(initCoords, maze);
-const instructions = tracePaths(initCoords, possibleSteps, maze);
-console.log(instructions);
+const instructions = tracePaths(initCoords, maze);
+console.log({instructions});
